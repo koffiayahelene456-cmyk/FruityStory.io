@@ -1,0 +1,31 @@
+import OpenAI from "openai";
+import type { VideoRequest, VideoJob } from "./types.js";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export async function createOpenAIVideo(
+  request: VideoRequest
+): Promise<VideoJob> {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY n'est pas configurée.");
+  }
+
+  const response = await client.videos.create({
+    model: "sora-2",
+    prompt: request.prompt,
+    seconds: String(request.duration ?? 10),
+    size: request.aspectRatio === "16:9"
+      ? "1280x720"
+      : "720x1280"
+  });
+
+  return {
+    id: response.id,
+    provider: "openai",
+    status: "processing",
+    prompt: request.prompt,
+    createdAt: new Date().toISOString()
+  };
+}
