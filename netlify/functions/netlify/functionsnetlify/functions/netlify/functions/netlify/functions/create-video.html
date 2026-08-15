@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Créer une vidéo — FruityStory.io</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #020617;
+      color: #f8fafc;
+    }
+
+    .panel {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 18px;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+  <main class="max-w-3xl mx-auto px-4 py-8">
+
+    <header class="mb-8">
+      <a
+        href="/"
+        class="text-purple-400"
+      >
+        ← FruityStory.io
+      </a>
+
+      <h1 class="text-3xl font-bold mt-4">
+        Créer une vidéo
+      </h1>
+
+      <p class="text-slate-400 mt-2">
+        Décris ta vidéo, choisis ses paramètres
+        puis publie-la.
+      </p>
+    </header>
+
+    <section class="panel p-5 space-y-6">
+
+      <div>
+        <label
+          for="prompt"
+          class="block mb-2 font-semibold"
+        >
+          Description de la vidéo
+        </label>
+
+        <textarea
+          id="prompt"
+          rows="6"
+          maxlength="5000"
+          class="w-full rounded-xl bg-slate-950 border border-slate-700 p-4"
+          placeholder="Décris la vidéo que tu souhaites créer..."
+        ></textarea>
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold">
+          Format
+        </label>
+
+        <select
+          id="aspectRatio"
+          class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3"
+        >
+          <option value="9:16">
+            Vertical — 9:16
+          </option>
+
+          <option value="16:9">
+            Paysage — 16:9
+          </option>
+
+          <option value="1:1">
+            Carré — 1:1
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold">
+          Durée
+        </label>
+
+        <select
+          id="duration"
+          class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3"
+        >
+          <option value="10">10 secondes</option>
+          <option value="20">20 secondes</option>
+          <option value="30">30 secondes</option>
+          <option value="60">60 secondes</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold">
+          Confidentialité
+        </label>
+
+        <select
+          id="visibility"
+          class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3"
+        >
+          <option value="public">
+            🌍 Tout le monde
+          </option>
+
+          <option value="friends">
+            👥 Amis
+          </option>
+
+          <option value="private">
+            🔒 Privé
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block mb-2 font-semibold">
+          Pays / diffusion
+        </label>
+
+        <select
+          id="country"
+          class="w-full rounded-xl bg-slate-950 border border-slate-700 p-3"
+        >
+          <option value="WORLD">
+            🌍 Monde entier
+          </option>
+
+          <option value="CI">
+            🇨🇮 Côte d’Ivoire
+          </option>
+
+          <option value="FR">
+            🇫🇷 France
+          </option>
+
+          <option value="DE">
+            🇩🇪 Allemagne
+          </option>
+
+          <option value="GB">
+            🇬🇧 Royaume-Uni
+          </option>
+
+          <option value="US">
+            🇺🇸 États-Unis
+          </option>
+        </select>
+      </div>
+
+      <div class="flex justify-between items-center">
+
+        <span
+          id="creditInfo"
+          class="text-slate-400"
+        >
+          Coût : 100 crédits
+        </span>
+
+        <button
+          id="generateButton"
+          class="rounded-xl bg-purple-600 hover:bg-purple-500 px-6 py-3 font-bold"
+        >
+          Générer la vidéo
+        </button>
+
+      </div>
+
+      <div
+        id="status"
+        class="hidden rounded-xl bg-slate-950 p-4"
+      ></div>
+
+    </section>
+
+  </main>
+
+  <script>
+    const userId = "demo-user";
+
+    const promptInput =
+      document.getElementById("prompt");
+
+    const durationInput =
+      document.getElementById("duration");
+
+    const aspectRatioInput =
+      document.getElementById("aspectRatio");
+
+    const visibilityInput =
+      document.getElementById("visibility");
+
+    const countryInput =
+      document.getElementById("country");
+
+    const button =
+      document.getElementById("generateButton");
+
+    const status =
+      document.getElementById("status");
+
+    function showStatus(message) {
+      status.textContent = message;
+      status.classList.remove("hidden");
+    }
+
+    button.addEventListener(
+      "click",
+      async () => {
+
+        const prompt =
+          promptInput.value.trim();
+
+        if (!prompt) {
+          showStatus(
+            "Décris d'abord la vidéo."
+          );
+          return;
+        }
+
+        button.disabled = true;
+
+        showStatus(
+          "Vérification des crédits..."
+        );
+
+        try {
+
+          const creditResponse =
+            await fetch(
+              "/.netlify/functions/credits",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+                body: JSON.stringify({
+                  userId,
+                  action:
+                    "consume-video"
+                })
+              }
+            );
+
+          const creditData =
+            await creditResponse.json();
+
+          if (!creditResponse.ok) {
+            throw new Error(
+              creditData.error ||
+              "Crédits insuffisants."
+            );
+          }
+
+          showStatus(
+            "Génération de la vidéo..."
+          );
+
+          const response =
+            await fetch(
+              "/.netlify/functions/generate-video",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+                body: JSON.stringify({
+                  prompt,
+                  duration:
+                    Number(
+                      durationInput.value
+                    ),
+                  aspectRatio:
+                    aspectRatioInput.value,
+                  provider: "openai"
+                })
+              }
+            );
+
+          const data =
+            await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              data.error ||
+              "Erreur de génération."
+            );
+          }
+
+          showStatus(
+            "Vidéo envoyée en génération. ID : " +
+            data.id
+          );
+
+        } catch (error) {
+
+          showStatus(
+            error instanceof Error
+              ? error.message
+              : "Une erreur est survenue."
+          );
+
+        } finally {
+
+          button.disabled = false;
+
+        }
+      }
+    );
+  </script>
+
+</body>
+    </html>
