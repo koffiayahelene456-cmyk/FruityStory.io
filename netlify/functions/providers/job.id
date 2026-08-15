@@ -1,0 +1,30 @@
+import type { VideoJob } from "../providers/types.js";
+
+const jobs = new Map<string, VideoJob>();
+
+export function saveJob(job: VideoJob): void {
+  jobs.set(job.id, job);
+}
+
+export function getJob(id: string): VideoJob | undefined {
+  return jobs.get(id);
+}
+
+export function updateJob(
+  id: string,
+  updates: Partial<VideoJob>
+): VideoJob | undefined {
+  const current = jobs.get(id);
+
+  if (!current) {
+    return undefined;
+  }
+
+  const updated = {
+    ...current,
+    ...updates
+  };
+
+  jobs.set(id, updated);
+  return updated;
+}
