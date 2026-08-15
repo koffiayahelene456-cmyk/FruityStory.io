@@ -1,0 +1,16 @@
+{
+  "name": "fruitstory",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/functions": "latest",
+    "openai": "latest"
+  },
+  "devDependencies": {
+    "typescript": "latest"
+  }
+}
