@@ -1,0 +1,15 @@
+netlify/functions/
+├── generate-video.ts
+├── video-jobs.ts
+├── video-job-status.ts
+├── privacy.ts
+├── countries.ts
+├── location.ts
+├── publication.ts
+├── credits.ts
+├── lib/
+│   ├── providers.ts
+│   └── store.ts
+└── providers/
+    ├── types.ts
+    └── openai.ts
