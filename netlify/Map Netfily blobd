@@ -1,0 +1,48 @@
+import { getStore } from "@netlify/blobs";
+import type { VideoJob } from "../providers/types.js";
+
+const store = getStore("fruitstory-video-jobs");
+
+export async function saveJob(job: VideoJob): Promise<void> {
+  await store.setJSON(job.id, job);
+}
+
+export async function getJob(
+  id: string
+): Promise<VideoJob | undefined> {
+  try {
+    const job = await store.get(id, {
+      type: "json"
+    });
+
+    return job as VideoJob | undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export async function updateJob(
+  id: string,
+  updates: Partial<VideoJob>
+): Promise<VideoJob | undefined> {
+  const current = await getJob(id);
+
+  if (!current) {
+    return undefined;
+  }
+
+  const updated: VideoJob = {
+    ...current,
+    ...updates
+  };
+
+  await saveJob(updated);
+
+  return updated;
+}
+
+export async function deleteJob(
+  id: string
+): Promise<void> {
+  await store.delete(id);
+}
